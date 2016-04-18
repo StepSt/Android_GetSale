@@ -53,7 +53,7 @@ public class Main extends Activity implements OnClickListener {
 
             @Override
             public void onClick(View v) {
-                String restURL = "@string/restURL";
+                String restURL = "http://icomms.ru/inf/meteo.php";
                 new RestOperation().execute(restURL);
             }
         });
@@ -88,8 +88,10 @@ public class Main extends Activity implements OnClickListener {
         String error;
         ProgressDialog progressDialog = new ProgressDialog(Main.this);
         String data = "";
+        String S1, S2;
         TextView txt_serverDataReceived = (TextView) findViewById(R.id.txt_serverDataReceived);
         TextView txt_showParsedJSON = (TextView) findViewById(R.id.txt_showParsedJSON);
+        TextView txt_error2 = (TextView) findViewById(R.id.text_error2);
         EditText edit_userIn = (EditText) findViewById(R.id.edit_userIn);
 
         protected void onPreExecute(){
@@ -97,7 +99,8 @@ public class Main extends Activity implements OnClickListener {
             progressDialog.setTitle ("Please wait...");
             progressDialog.show();
             try {
-                data += "&" + URLEncoder.encode("data","UTF-8") + "=" + edit_userIn.getText();
+                data += "?" + URLEncoder.encode("tid","UTF-8") + "=" + edit_userIn.getText();
+                S1=data.toString();
             } catch (UnsupportedEncodingException e){
                 e.printStackTrace();
             }
@@ -108,6 +111,7 @@ public class Main extends Activity implements OnClickListener {
             URL url;
             try {
                 url = new URL(params[0]);
+                S2 = url.toString();
                 URLConnection connection = url.openConnection();
 
                 OutputStreamWriter outputStream = new OutputStreamWriter(connection.getOutputStream());
@@ -132,13 +136,15 @@ public class Main extends Activity implements OnClickListener {
             }
             return null;
         }
-        protected void onPostExecute(Void result){
+        protected void  onPostExecute(Void result){
             super.onPostExecute(result);
 
             progressDialog.dismiss();
 
             if (error!=null){
-                txt_serverDataReceived.setText("Error" + error);
+                txt_showParsedJSON.setText(S1);
+                txt_error2.setText(S2);
+                txt_serverDataReceived.setText("Error = " + error);
             } else {
                 txt_serverDataReceived.setText(content);
 
@@ -151,7 +157,10 @@ public class Main extends Activity implements OnClickListener {
                     for (int i = 0; i<jsonArray.length(); i++){
                         JSONObject child = jsonArray.getJSONObject(i);
 
-                        String str;
+                        String date = child.getString("date");
+                        String temp = child.getString("temp");
+                        output = "Date = " + System.getProperty("line.separator") + temp + System.getProperty("line.separator");
+                        output += System.getProperty("line.separator");
                     }
                     txt_showParsedJSON.setText(output);
                 }catch (JSONException e){

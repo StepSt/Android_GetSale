@@ -2,11 +2,6 @@
     <string name="app_name">Android_GetSale</string>
     <string name="scan">Scan</string>
 
-    <string name="restURL"></string>
+    <string name="restURL">http://export.yandex.ru/weather-ng/forecasts/34929.xml</string>
 
-    <string name="id_label">The ID is</string>
-    <string name="id_value">[id]</string>
-    <string name="content_label">The Content is</string>
-    <string name="content_value">[content]</string>
-    <string name="action_refresh">Refresh</string>
 </resources>

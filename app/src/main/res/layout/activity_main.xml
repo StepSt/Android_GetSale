@@ -61,4 +61,12 @@
         android:layout_below="@+id/txt_serverDataReceived"
         android:layout_alignParentStart="true" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/text_error2"
+        android:layout_below="@+id/txt_showParsedJSON"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>
