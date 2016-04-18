@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Android_GetSale</string>
+    <string name="scan">Scan</string>
 </resources>
