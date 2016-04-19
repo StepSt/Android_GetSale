@@ -2,7 +2,6 @@ package com.example.admin.android_getsale;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import org.apache.http.client.HttpClient;
@@ -58,7 +57,7 @@ public class Main extends Activity implements OnClickListener {
             }
         });
     }
-
+    //region void QT
     public void onClick(View v){
         if(v.getId()==R.id.scan_button){
             IntentIntegrator scanIntegrator = new IntentIntegrator(this);
@@ -81,6 +80,7 @@ public class Main extends Activity implements OnClickListener {
         }
 
     }
+    //endregion
 
     public class RestOperation extends AsyncTask<String, Void, Void> {
         final HttpClient httpClient = new DefaultHttpClient();
