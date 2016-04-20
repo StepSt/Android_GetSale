@@ -3,7 +3,7 @@ package com.example.admin.android_getsale;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
+import android.app.ProgressDialog;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -11,6 +11,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -36,6 +37,9 @@ public class Main extends Activity implements OnClickListener {
 
     private Button scanBtn;
     private TextView formatTxt, contentTxt;
+    private ProgressDialog pDialog;
+    String url = "http://194.87.144.52:1869/Service1.svc/GetSum?id=123456&token=e10adc3949ba59abbe56e057f20f883e";
+    String Sale_User, Fond_User, Publicity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +56,8 @@ public class Main extends Activity implements OnClickListener {
 
             @Override
             public void onClick(View v) {
-                String restURL = "http://icomms.ru/inf/meteo.php";
-                new RestOperation().execute(restURL);
+                new GetContacts().execute();
+
             }
         });
     }
@@ -72,6 +76,7 @@ public class Main extends Activity implements OnClickListener {
 
             formatTxt.setText("FORMAT: " + scanFormat);
             contentTxt.setText("CONTENT: " + scanContent);
+            url = "http://194.87.144.52:1869/Service1.svc/GetSum?id=" + scanContent +"&token=e10adc3949ba59abbe56e057f20f883e";
         }
         else{
             Toast toast = Toast.makeText(getApplicationContext(),
@@ -82,93 +87,64 @@ public class Main extends Activity implements OnClickListener {
     }
     //endregion
 
-    public class RestOperation extends AsyncTask<String, Void, Void> {
-        final HttpClient httpClient = new DefaultHttpClient();
-        String content;
-        String error;
-        ProgressDialog progressDialog = new ProgressDialog(Main.this);
-        String data = "";
-        String S1, S2;
-        TextView txt_serverDataReceived = (TextView) findViewById(R.id.txt_serverDataReceived);
-        TextView txt_showParsedJSON = (TextView) findViewById(R.id.txt_showParsedJSON);
-        TextView txt_error2 = (TextView) findViewById(R.id.text_error2);
-        EditText edit_userIn = (EditText) findViewById(R.id.edit_userIn);
+    private class GetContacts extends AsyncTask<Void, Void, Void> {
 
-        protected void onPreExecute(){
+        @Override
+        protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setTitle ("Please wait...");
-            progressDialog.show();
-            try {
-                data += "?" + URLEncoder.encode("tid","UTF-8") + "=" + edit_userIn.getText();
-                S1=data.toString();
-            } catch (UnsupportedEncodingException e){
-                e.printStackTrace();
-            }
-
+            // Showing progress dialog
+            pDialog = new ProgressDialog(Main.this);
+            pDialog.setMessage("Please wait...");
+            pDialog.setCancelable(false);
+            pDialog.show();
         }
-        protected Void doInBackground(String... params){
-            BufferedReader br = null;
-            URL url;
-            try {
-                url = new URL(params[0]);
-                S2 = url.toString();
-                URLConnection connection = url.openConnection();
 
-                OutputStreamWriter outputStream = new OutputStreamWriter(connection.getOutputStream());
-                outputStream.write(data);
-                outputStream.flush();
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            // Creating service handler class instance
+            ServiceHandler sh = new ServiceHandler();
 
-                br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder sb = new StringBuilder();
-                String line = null;
+            // Making a request to url and getting response
+            String jsonStr = sh.makeServiceCall(url, ServiceHandler.GET);
 
-                while ((line = br.readLine())!= null){
-                    sb.append(line);
-                    sb.append(System.getProperty("line.separator"));
+            Log.d("Response: ", "> " + jsonStr);
+
+            if (jsonStr != null) {
+                try {
+                    JSONObject jsonObj = new JSONObject(jsonStr);
+                    String response = jsonObj.getString("GetSumResult");
+                    JSONObject jsonObject = new JSONObject(response);
+
+                    // Getting JSON Array node
+                    Sale_User = jsonObject.getString("Sale_User");
+                    Fond_User = jsonObject.getString("Fond_User");
+                    Publicity = jsonObject.getString("Publicity");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                content = sb.toString();
-            } catch (MalformedURLException e){
-                error = e.getMessage();
-                e.printStackTrace();
-            }catch (IOException e){
-                error = e.getMessage();
-                e.printStackTrace();
+            } else {
+                Log.e("ServiceHandler", "Couldn't get any data from the url");
             }
             return null;
         }
-        protected void  onPostExecute(Void result){
+
+        @Override
+        protected void onPostExecute(Void result) {
             super.onPostExecute(result);
+            // Dismiss the progress dialog
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+            TextView Sale_User_textview = (TextView) findViewById(R.id.txt_Sale_User);
+            TextView Fond_User_textview = (TextView) findViewById(R.id.txt_Fond_User);
+            TextView Publicity_textview = (TextView) findViewById(R.id.text_Publicity);
 
-            progressDialog.dismiss();
+            Sale_User_textview.setText(Sale_User);
+            Fond_User_textview.setText(Fond_User);
+            Publicity_textview.setText(Publicity);
 
-            if (error!=null){
-                txt_showParsedJSON.setText(S1);
-                txt_error2.setText(S2);
-                txt_serverDataReceived.setText("Error = " + error);
-            } else {
-                txt_serverDataReceived.setText(content);
 
-                String output = "";
-                JSONObject jsonObject;
-
-                try {
-                    jsonObject = new JSONObject(content);
-                    JSONArray jsonArray = jsonObject.optJSONArray("Android");
-                    for (int i = 0; i<jsonArray.length(); i++){
-                        JSONObject child = jsonArray.getJSONObject(i);
-
-                        String date = child.getString("date");
-                        String temp = child.getString("temp");
-                        output = "Date = " + System.getProperty("line.separator") + temp + System.getProperty("line.separator");
-                        output += System.getProperty("line.separator");
-                    }
-                    txt_showParsedJSON.setText(output);
-                }catch (JSONException e){
-                    e.printStackTrace();
-                }
-
-            }
         }
+
     }
 
 }

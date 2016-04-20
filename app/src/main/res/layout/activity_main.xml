@@ -49,7 +49,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Text"
-        android:id="@+id/txt_serverDataReceived"
+        android:id="@+id/txt_Sale_User"
         android:layout_below="@+id/button_getData"
         android:layout_alignParentStart="true" />
 
@@ -57,16 +57,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Text"
-        android:id="@+id/txt_showParsedJSON"
-        android:layout_below="@+id/txt_serverDataReceived"
+        android:id="@+id/txt_Fond_User"
+        android:layout_below="@+id/txt_Sale_User"
         android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New Text"
-        android:id="@+id/text_error2"
-        android:layout_below="@+id/txt_showParsedJSON"
+        android:id="@+id/text_Publicity"
+        android:layout_below="@+id/txt_Fond_User"
         android:layout_alignParentStart="true" />
 
 </RelativeLayout>
